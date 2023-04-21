@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:20.04 AS builder
 
 LABEL maintainer Naba Das <hello@get-deck.com>
 ENV PHP_VERSION=7.4
@@ -25,7 +25,8 @@ RUN apt-get update && \
     libldap2-dev \
     libfreetype6-dev \
     libfreetype6 \
-    curl
+    curl \
+    sudo
 
 
 # exts
@@ -55,7 +56,7 @@ RUN apt-get update && \
     php${PHP_VERSION}-mongodb \
     php${PHP_VERSION}-gd \
     php${PHP_VERSION}-redis && \
-    echo "extension=apcu.so" | tee -a /etc/php/7.4/mods-available/cache.ini
+    echo "extension=apcu.so" | tee -a /etc/php/${PHP_VERSION}/mods-available/cache.ini
 #    php-mcrypt \
 
 # Install composer
@@ -74,19 +75,34 @@ RUN cp /usr/share/zoneinfo/Europe/Moscow /etc/localtime
 # forward request and error logs to docker log collector
 RUN ln -sf /dev/stdout /var/log/nginx/access.log \
 	&& ln -sf /dev/stderr /var/log/nginx/error.log \
-	&& ln -sf /dev/stderr /var/log/php7.4-fpm.log
+	&& ln -sf /dev/stderr /var/log/php${PHP_VERSION}-fpm.log
 
 RUN rm -f /etc/nginx/sites-enabled/*
 COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY ./nginx/nginx.conf /etc/nginx/nginx.conf
 
 # COPY ./www/index.php /var/www/public/
-RUN mkdir -p /run/php && touch /run/php/php7.4-fpm.sock && touch /run/php/php7.4-fpm.pid
+RUN mkdir -p /run/php && touch /run/php/php${PHP_VERSION}-fpm.sock && touch /run/php/php${PHP_VERSION}-fpm.pid
+# RUN setcap cap_net_bind_service=ep /usr/sbin/nginx
+# RUN chown -R www-data:www-data /run/php
+# RUN chown -R www-data:www-data /run
+# RUN chown -R www-data:www-data /etc/nginx
+# RUN chown -R www-data:www-data /var/log/nginx
+# RUN chown -R www-data:www-data /var/lib/nginx/
+# RUN chown -R www-data:www-data /var/lib/nginx
 
 COPY entrypoint.sh /entrypoint.sh
+FROM scratch
+COPY --from=builder / /
 
 WORKDIR /var/www/
-RUN chmod 755 /entrypoint.sh
-
+RUN chmod +x /entrypoint.sh
+RUN chown -R www-data:www-data /run/php
+RUN chown -R www-data:www-data /run
+RUN chown -R www-data:www-data /etc/nginx
+RUN chown -R www-data:www-data /var/log/nginx
+RUN chown -R www-data:www-data /var/lib/nginx/
+RUN echo "www-data ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+USER www-data
 EXPOSE 80
 CMD ["/entrypoint.sh"]

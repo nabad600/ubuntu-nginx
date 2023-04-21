@@ -4,7 +4,7 @@ on:
   push:
     branches: [ php74 ]
 env:
-  IMAGE_NAME: apache
+  IMAGE_NAME: nginx
   VERSION: v7.4
 jobs:
   buildImage:
