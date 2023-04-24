@@ -1,7 +1,7 @@
 FROM ubuntu:20.04 AS builder
 
 LABEL maintainer Naba Das <hello@get-deck.com>
-ENV PHP_VERSION=7.0
+ENV PHP_VERSION=5.6
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt update && apt -y install software-properties-common && add-apt-repository ppa:ondrej/php -y
 

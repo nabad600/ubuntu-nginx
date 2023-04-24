@@ -2,10 +2,10 @@ name: Publish Docker Image
 
 on:
   push:
-    branches: [ php70 ]
+    branches: [ php56 ]
 env:
   IMAGE_NAME: nginx
-  VERSION: v7.0
+  VERSION: v5.6
 jobs:
   buildImage:
     name: Build Docker Image
@@ -28,4 +28,4 @@ jobs:
 
       - uses: actions/checkout@v2
       - name: Build Container image
-        run: docker buildx build --platform linux/amd64,linux/arm64 --tag ghcr.io/nabad600/nubuntu:v7.0 . --push
+        run: docker buildx build --platform linux/amd64,linux/arm64 --tag ghcr.io/nabad600/nubuntu:v5.6 . --push
