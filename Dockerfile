@@ -1,9 +1,17 @@
 FROM ubuntu:20.04 AS builder
 
 LABEL maintainer Naba Das <hello@get-deck.com>
-ENV PHP_VERSION=5.6
+ENV PHP_VERSION=8.0
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt update && apt -y install software-properties-common && add-apt-repository ppa:ondrej/php -y
+RUN apt-get update \
+    && apt-get upgrade -yq \
+    && apt-get install -yq --no-install-recommends \
+        apt-utils \
+        curl \
+        software-properties-common \
+    && LC_ALL=C.UTF-8 add-apt-repository ppa:ondrej/php \
+    && apt-get remove --purge -y software-properties-common
+# RUN apt update && apt -y install software-properties-common && add-apt-repository ppa:ondrej/php -y
 
 # install support package
 RUN apt-get update && \
@@ -48,7 +56,7 @@ RUN apt-get update && \
     php${PHP_VERSION}-mbstring \
     php${PHP_VERSION}-ldap \
     php${PHP_VERSION}-zip \
-    php${PHP_VERSION}-json \
+    # php${PHP_VERSION}-json \
     php${PHP_VERSION}-xml \
     php${PHP_VERSION}-xmlrpc \
     php${PHP_VERSION}-gmp \
