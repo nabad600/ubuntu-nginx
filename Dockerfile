@@ -1,7 +1,7 @@
 FROM ubuntu:20.04 AS builder
 
 LABEL maintainer Naba Das <hello@get-deck.com>
-ENV PHP_VERSION=7.4
+ENV PHP_VERSION=7.3
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt update && apt -y install software-properties-common && add-apt-repository ppa:ondrej/php -y
 
@@ -80,6 +80,8 @@ RUN ln -sf /dev/stdout /var/log/nginx/access.log \
 RUN rm -f /etc/nginx/sites-enabled/*
 COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY ./nginx/nginx.conf /etc/nginx/nginx.conf
+# COPY php-fpm/php-fpm.conf /etc/php/${PHP_VERSION}/php-fpm.conf
+RUN sed -i "s#{PHP_VERSION}#${PHP_VERSION}#g" /etc/nginx/conf.d/default.conf
 
 # COPY ./www/index.php /var/www/public/
 RUN mkdir -p /run/php && touch /run/php/php${PHP_VERSION}-fpm.sock && touch /run/php/php${PHP_VERSION}-fpm.pid
@@ -92,6 +94,7 @@ RUN mkdir -p /run/php && touch /run/php/php${PHP_VERSION}-fpm.sock && touch /run
 # RUN chown -R www-data:www-data /var/lib/nginx
 
 COPY entrypoint.sh /entrypoint.sh
+RUN sed -i "s#{PHP_VERSION}#${PHP_VERSION}#g" /entrypoint.sh
 FROM scratch
 COPY --from=builder / /
 
