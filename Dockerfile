@@ -1,7 +1,7 @@
 FROM ubuntu:20.04 AS builder
 
 LABEL maintainer Naba Das <hello@get-deck.com>
-ENV PHP_VERSION=8.0
+ENV PHP_VERSION=8.1
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
     && apt-get upgrade -yq \
