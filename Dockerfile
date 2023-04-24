@@ -103,6 +103,6 @@ RUN chown -R www-data:www-data /etc/nginx
 RUN chown -R www-data:www-data /var/log/nginx
 RUN chown -R www-data:www-data /var/lib/nginx/
 RUN echo "www-data ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-USER www-data
+# USER www-data
 EXPOSE 80
 CMD ["/entrypoint.sh"]
